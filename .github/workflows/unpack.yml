@@ -1,0 +1,25 @@
+name: unpack-release
+on:
+  push:
+    paths:
+      - 'ar-x-mine-v2-release.zip'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack zip into repo root
+        run: |
+          [ -f ar-x-mine-v2-release.zip ] || exit 0
+          unzip -oq ar-x-mine-v2-release.zip
+          cp -a ar-x-mine/. .
+          rm -rf ar-x-mine ar-x-mine-v2-release.zip
+          rm -f package-lock.json data/demo-data.js js/pages/phase3.js js/pages/phase4.js js/pages/auth-live.js pages/project-old.html README.md
+          git config user.name "release-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add -A
+          git commit -m "Unpack release" || exit 0
+          git push
